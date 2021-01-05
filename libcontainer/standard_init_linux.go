@@ -11,7 +11,6 @@ import (
 
 	"github.com/opencontainers/runc/libcontainer/apparmor"
 	"github.com/opencontainers/runc/libcontainer/configs"
-	"github.com/opencontainers/runc/libcontainer/keys"
 	"github.com/opencontainers/runc/libcontainer/label"
 	"github.com/opencontainers/runc/libcontainer/seccomp"
 	"github.com/opencontainers/runc/libcontainer/system"
@@ -45,20 +44,6 @@ func (l *linuxStandardInit) getSessionRingParams() (string, uint32, uint32) {
 const PR_SET_NO_NEW_PRIVS = 0x26
 
 func (l *linuxStandardInit) Init() error {
-	if !l.config.Config.NoNewKeyring {
-		ringname, keepperms, newperms := l.getSessionRingParams()
-
-		// do not inherit the parent's session keyring
-		sessKeyId, err := keys.JoinSessionKeyring(ringname)
-		if err != nil {
-			return err
-		}
-		// make session keyring searcheable
-		if err := keys.ModKeyringPerm(sessKeyId, keepperms, newperms); err != nil {
-			return err
-		}
-	}
-
 	var console *linuxConsole
 	if l.config.Console != "" {
 		console = newConsoleFromPath(l.config.Console)

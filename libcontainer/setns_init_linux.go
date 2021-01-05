@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"github.com/opencontainers/runc/libcontainer/apparmor"
-	"github.com/opencontainers/runc/libcontainer/keys"
 	"github.com/opencontainers/runc/libcontainer/label"
 	"github.com/opencontainers/runc/libcontainer/seccomp"
 	"github.com/opencontainers/runc/libcontainer/system"
@@ -26,12 +25,6 @@ func (l *linuxSetnsInit) getSessionRingName() string {
 }
 
 func (l *linuxSetnsInit) Init() error {
-	if !l.config.Config.NoNewKeyring {
-		// do not inherit the parent's session keyring
-		if _, err := keys.JoinSessionKeyring(l.getSessionRingName()); err != nil {
-			return err
-		}
-	}
 	if l.config.NoNewPrivileges {
 		if err := system.Prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0); err != nil {
 			return err
